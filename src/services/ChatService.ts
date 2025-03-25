@@ -10,16 +10,18 @@ export default class ChatService implements IChatService {
   constructor(@inject(TYPES.SocketIO) private io: SocketIOServer) {}
 
   async sendToSocket(
+    userId: number,
     socketId: string,
     message: string
   ): Promise<Response<ChatDto>> {
     const response = this.io
       .to(socketId)
-      .emit("private-message", message, socketId);
+      .emit("from-server", { userId, socketId, message });
     if (response) {
       return {
         success: true,
         data: {
+          userId: userId,
           socketId: socketId,
           message: "Message emitted",
         },

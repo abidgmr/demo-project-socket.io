@@ -12,7 +12,7 @@ import swaggerUi from "swagger-ui-express";
 import YAML from "yamljs";
 import { Server as SocketIOServer } from "socket.io";
 
-// import ClientIdMiddleware from "./src/middleware/clientid.middleware";
+import ClientIdMiddleware from "./middleware/clientid.middleware";
 import { InversifyExpressServer } from "inversify-express-utils";
 import { createContainer } from "./config/ioc";
 import { TYPES } from "./config/types";
@@ -28,14 +28,24 @@ import "./controller/controllers";
 const sIO = {} as SocketIOServer;
 const container = createContainer(sIO);
 const inversifyServer = new InversifyExpressServer(container);
-// const clientIDMiddleware = new ClientIdMiddleware();
+const clientIDMiddleware = new ClientIdMiddleware();
 
 inversifyServer.setConfig((app) => {
+  app.use(
+    cors({
+      origin: "http://localhost:3000",
+      allowedHeaders: "*",
+      methods: ["GET", "PUT", "POST", "DELETE", "PATCH"],
+      credentials: true,
+      optionsSuccessStatus: 200,
+    })
+  );
+
   app.use("/swagger", swaggerUi.serve, swaggerUi.setup(swaggerDocument));
-  app.get("/", (req: Request, res: Response) => {
-    res.sendFile(path.join(publicPath, "index.html"));
-  });
-  // app.use(clientIDMiddleware.verify);
+  // app.get("/", (req: Request, res: Response) => {
+  //   res.sendFile(path.join(publicPath, "index.html"));
+  // });
+  app.use(clientIDMiddleware.verify);
   app.use(requestIp.mw());
   app.use(limiter);
   app.use(express.static(publicPath));
@@ -45,16 +55,6 @@ inversifyServer.setConfig((app) => {
       resave: false,
       saveUninitialized: true,
       cookie: { secure: true }, // Set to true if using HTTPS
-    })
-  );
-
-  app.use(
-    cors({
-      origin: "http://localhost:3001",
-      methods: ["GET", "PUT", "POST", "DELETE", "PATCH"],
-      allowedHeaders: "*",
-      credentials: true,
-      optionsSuccessStatus: 200,
     })
   );
 
@@ -75,7 +75,8 @@ const httpServer = http.createServer(app);
 const io = new SocketIOServer(httpServer, {
   pingTimeout: 60000,
   cors: {
-    origin: "http://localhost:3001",
+    origin: "http://localhost:3000",
+    allowedHeaders: "*",
     methods: ["GET", "POST"],
     credentials: true,
   },
@@ -85,11 +86,19 @@ container.rebind<SocketIOServer>(TYPES.SocketIO).toConstantValue(io);
 
 io.on("connection", (socket) => {
   console.log("Client connected:", socket.id);
+
+  socket.on("connect_error", (err) => {
+    console.log(err.message);
+  });
+
+  socket.on("disconnect", () => {
+    console.log("User disconnected with socket id: ", socket.id);
+  });
 });
 
 const port = process.env.PORT || 3002;
 httpServer.listen(port, () => {
-  console.log(`Server running at http://localhost:${port}`);
+  console.log(`Server listening at http://localhost:${port}`);
 });
 
 export default httpServer;
