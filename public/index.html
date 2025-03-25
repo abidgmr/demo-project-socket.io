@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Chat App</title>
+  </head>
+  <body>
+    <h1>Chat App</h1>
+    <input type="text" name="message" id="message" />
+    <button type="button" id="send">Send Message</button>
+
+    <ul id="messages"></ul>
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script>
+      const socket = io("http://localhost:3001");
+      const messageInput = document.getElementById("message");
+      const messageList = document.getElementById("messages");
+
+      // Listen for broadcast messages
+      socket.on("from-server", (msg) => {
+        console.log("Broadcast:", msg);
+        appendMessage("Broadcast: " + msg);
+      });
+
+      // Listen for private messages (if using socketId targeting)
+      socket.on("private-message", (msg) => {
+        console.log("Private:", msg);
+        appendMessage("Private: " + msg);
+      });
+
+      function appendMessage(text) {
+        const li = document.createElement("li");
+        li.textContent = text;
+        messageList.appendChild(li);
+      }
+
+      document.getElementById("send").addEventListener("click", async () => {
+        const messageValue = messageInput.value;
+
+        await fetch("http://localhost:3001/chat/send", {
+          method: "POST",
+          headers: { "Content-Type": "application/json", "clientid": "CQCCOWWIZBRMERSNEJAROLLSZLRKMGLIHRKTWVPAUZIAXSSYUMECFQSVYTLFIVCNAPSNOZIIUTUZFF" },
+          body: JSON.stringify({
+            message: messageValue,
+            socketId: socket.id, // ✅ send the current socket ID
+          }),
+        });
+
+        messageInput.value = "";
+      });
+    </script>
+  </body>
+</html>
