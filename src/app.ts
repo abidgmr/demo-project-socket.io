@@ -48,7 +48,6 @@ inversifyServer.setConfig((app) => {
   app.use(clientIDMiddleware.verify);
   app.use(requestIp.mw());
   app.use(limiter);
-  app.use(express.static(publicPath));
   app.use(
     session({
       secret: process.env.JWT_SECRET || "",
@@ -57,7 +56,7 @@ inversifyServer.setConfig((app) => {
       cookie: { secure: true }, // Set to true if using HTTPS
     })
   );
-
+  app.use(express.static(publicPath));
   app.use(express.json({ limit: "16kb" }));
   app.use(express.urlencoded({ extended: true, limit: "16kb" }));
 });

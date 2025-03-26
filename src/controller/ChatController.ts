@@ -11,6 +11,7 @@ import {
 import { TYPES } from "../config/types";
 import IChatService from "../services/interface/IChatService";
 import { MessageDto } from "../dtos/ChatDto";
+import { authentication } from "../middleware/authentication.middleware";
 
 @controller("/chat")
 export class ChatController implements interfaces.Controller {
@@ -20,21 +21,26 @@ export class ChatController implements interfaces.Controller {
     this._chatService = chatService;
   }
 
-  @httpPost("/send")
+  @httpPost("/send", authentication)
   public async send(
     @request() req: Request,
     @response() res: Response
   ): Promise<Response<MessageDto>> {
     try {
       const { userId, socketId, message } = req.body;
+
+      if (!userId || !socketId || !message) {
+        return res
+          .status(400)
+          .json({ success: false, message: "Invalid request payload" });
+      }
+
       const response = await this._chatService.sendToSocket(
         userId,
         socketId,
         message
       );
-      console.log("response", response);
-
-      return res.status(201).json(response);
+      return res.status(response.success ? 201 : 500).json(response);
     } catch (error) {
       console.error("Error sending message:", error);
       return res.status(500).json({
@@ -44,7 +50,7 @@ export class ChatController implements interfaces.Controller {
     }
   }
 
-  @httpPost("/broadcast")
+  @httpPost("/broadcast", authentication)
   public async broadcast(
     @request() req: Request,
     @response() res: Response

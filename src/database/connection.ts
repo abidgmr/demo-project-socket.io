@@ -1,8 +1,8 @@
 "use-strict"
 import { Sequelize } from "sequelize-typescript";
-const fs = require("fs");
+import dotenv from "dotenv";
+import mysql2 from "mysql2";
 import * as path from "path";
-const dotenv = require('dotenv');
 dotenv.config();
 dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 // const caCertPath = path.resolve(__dirname, "ca", "ca.pem");
@@ -44,7 +44,7 @@ const dbConfigSetup = () => {
       dialect: "mysql",
       migrationStorageTableName: "migrations",
       migrationStoragePath: path.resolve(__dirname, "./migrations"),
-      dialectModule: require('mysql2'),
+      dialectModule: mysql2,
       dialectOptions: {
         ssl: {
         //   ca: fs.readFileSync(caCertPath),
@@ -60,6 +60,7 @@ const dbConfigSetup = () => {
   }
 };
 
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const devConnection: any = dbConfigSetup();
 const sequelize = new Sequelize(devConnection);
 export default sequelize;
