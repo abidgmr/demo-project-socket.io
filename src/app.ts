@@ -18,6 +18,10 @@ import { createContainer } from "./config/ioc";
 import { TYPES } from "./config/types";
 
 dotenv.config();
+dotenv.config({ path: `.env.${process.env.NODE_ENV?.trim()}` });
+
+// Sequelize connection path
+import sequelize from "./database/connection";
 
 const swaggerPath = path.resolve(process.cwd(), "src", "swagger.yaml");
 const swaggerDocument = YAML.load(swaggerPath);
@@ -96,7 +100,13 @@ io.on("connection", (socket) => {
 });
 
 const port = process.env.PORT || 3002;
-httpServer.listen(port, () => {
+httpServer.listen(port, async() => {
+  try {
+    await sequelize.authenticate();
+    console.log("Connection has been established successfully.");
+  } catch (error) {
+    console.error("Unable to connect to the database:", error);
+  }
   console.log(`Server listening at http://localhost:${port}`);
 });
 

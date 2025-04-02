@@ -39,7 +39,7 @@ export class UserController implements interfaces.Controller {
   @httpPut(
     "/:id",
     authentication,
-    authorization([Roles.Administrator, Roles.Manager]),
+    authorization([Roles.Administrator]),
     // validateSchema(CategoryValidationSchema)
   )
   public async updateCategory(
