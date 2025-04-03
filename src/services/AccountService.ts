@@ -4,7 +4,7 @@ import UserDto from "../dtos/UserDto";
 import LoginDataModel from "../models/LoginDataModel";
 import BcryptUtils from "../utils/bcrypt.utils";
 import { UserModel } from "../database/models/UserModel";
-import sequelize from "../database/connection";
+// import sequelize from "../database/connection";
 import { RoleModel } from "../database/models/RoleModel";
 import Response from "../dtos/Response";
 import IMiscellaneousService from "./interface/IMiscellaneousService";
@@ -24,7 +24,7 @@ export default class AccountService implements IAccountService {
   async login(
     model: LoginDataModel
   ): Promise<Response<UserDto | { uniqueId: string }>> {
-    const t = await sequelize.transaction();
+    // const t = await sequelize.transaction();
     try {
       if (!model.username && !model.password) {
         throw new Error("Login credentials required");
@@ -52,7 +52,7 @@ export default class AccountService implements IAccountService {
         throw new Error("Invalid username or password");
       }
 
-      await t.rollback();
+      // await t.rollback();
       const roleResponse = await RoleModel.findOne({
         where: {
           roleId: _user?.roleId,
@@ -73,7 +73,7 @@ export default class AccountService implements IAccountService {
         return tokenResponse;
       }
     } catch {
-      await t.rollback();
+      // await t.rollback();
       throw new Error("Some error occurred!");
     }
 

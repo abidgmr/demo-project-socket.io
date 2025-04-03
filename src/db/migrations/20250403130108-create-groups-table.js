@@ -1,54 +1,26 @@
 'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
+
 export async function up(queryInterface, Sequelize) {
-  await queryInterface.createTable('users', {
+  await queryInterface.createTable('groups', {
     id: {
       type: Sequelize.INTEGER,
       allowNull: false,
       primaryKey: true,
       autoIncrement: true
     },
-    guid: {
+    adminId: {
       type: Sequelize.UUID.V4,
       allowNull: false,
-      defaultValue: Sequelize.UUIDV4
+      references: {
+        model: 'users',
+        key: 'guid',
+      },
     },
-    firstName: {
+    name: {
       type: Sequelize.STRING(50),
       allowNull: false,
-    },
-    lastName: {
-      type: Sequelize.STRING(50),
-      allowNull: false,
-    },
-    email: {
-      type: Sequelize.STRING(255),
-      allowNull: false,
-    },
-    password: {
-      type: Sequelize.STRING(255),
-      allowNull: false,
-    },
-    confirmPassword: {
-      type: Sequelize.STRING(255),
-      allowNull: false,
-    },
-    profilePicture:{
-      type: Sequelize.BLOB('long'),
-      allowNull: true
-    },
-    ip_address:{
-      type: Sequelize.STRING(250),
-      allowNull: true
-    },
-    login_on: {
-      type: Sequelize.DataTypes.DATE(7),
-      allowNull: true
-    },
-    lastLoginOn: {
-      type: Sequelize.DataTypes.DATE(7),
-      allowNull: true
     },
     createdOn: {
       type: Sequelize.DataTypes.DATE(7),
@@ -76,9 +48,11 @@ export async function up(queryInterface, Sequelize) {
       type: Sequelize.BOOLEAN,
       allowNull: true,
       defaultValue: false,
-    },
+    }
   });
-}
+};
+
 export async function down(queryInterface) {
-  await queryInterface.dropTable('users');
+  await queryInterface.dropTable('groups');
 }
+

@@ -1,54 +1,35 @@
 'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
+
 export async function up(queryInterface, Sequelize) {
-  await queryInterface.createTable('users', {
+  await queryInterface.createTable('group_members', {
     id: {
       type: Sequelize.INTEGER,
       allowNull: false,
       primaryKey: true,
       autoIncrement: true
     },
-    guid: {
-      type: Sequelize.UUID.V4,
+    groupId: {
+      type: Sequelize.INTEGER,
       allowNull: false,
-      defaultValue: Sequelize.UUIDV4
+      references: {
+        model: 'groups',
+        key: 'id',
+      },
     },
-    firstName: {
-      type: Sequelize.STRING(50),
+    userId: {
+      type: Sequelize.INTEGER,
       allowNull: false,
+      references: {
+        model: 'users',
+        key: 'id',
+      },
     },
-    lastName: {
-      type: Sequelize.STRING(50),
+    isAdmin: {
+      type: Sequelize.BOOLEAN,
       allowNull: false,
-    },
-    email: {
-      type: Sequelize.STRING(255),
-      allowNull: false,
-    },
-    password: {
-      type: Sequelize.STRING(255),
-      allowNull: false,
-    },
-    confirmPassword: {
-      type: Sequelize.STRING(255),
-      allowNull: false,
-    },
-    profilePicture:{
-      type: Sequelize.BLOB('long'),
-      allowNull: true
-    },
-    ip_address:{
-      type: Sequelize.STRING(250),
-      allowNull: true
-    },
-    login_on: {
-      type: Sequelize.DataTypes.DATE(7),
-      allowNull: true
-    },
-    lastLoginOn: {
-      type: Sequelize.DataTypes.DATE(7),
-      allowNull: true
+      defaultValue: false,
     },
     createdOn: {
       type: Sequelize.DataTypes.DATE(7),
@@ -57,7 +38,7 @@ export async function up(queryInterface, Sequelize) {
     },
     createdBy: {
       type: Sequelize.STRING(255),
-      allowNull: true
+      allowNull: false
     },
     updatedOn: {
       type: Sequelize.DataTypes.DATE(7),
@@ -76,9 +57,11 @@ export async function up(queryInterface, Sequelize) {
       type: Sequelize.BOOLEAN,
       allowNull: true,
       defaultValue: false,
-    },
+    }
   });
-}
+};
+
 export async function down(queryInterface) {
-  await queryInterface.dropTable('users');
+  await queryInterface.dropTable('group_members');
 }
+

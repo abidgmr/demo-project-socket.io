@@ -13,7 +13,7 @@ import { TYPES } from "../config/types";
 import IAccountService from "../services/interface/IAccountService";
 import LoginModel from "../models/LoginDataModel";
 import UserDto from "../dtos/UserDto";
-import sequelize from "../database/connection";
+// import sequelize from "../database/connection";
 import { UserModel } from "../database/models/UserModel";
 
 @controller("/account")
@@ -65,7 +65,7 @@ export class AccountController implements interfaces.Controller {
     @request() req: Request,
     @response() res: Response
   ): Promise<UserDto | void> {
-    const t = await sequelize.transaction();
+    // const t = await sequelize.transaction();
     try {
       const model = req.body as UserModel;
       const roleName = req.body.role as string;
@@ -73,10 +73,10 @@ export class AccountController implements interfaces.Controller {
       console.log(model, roleName, confirmPassword);
 
 
-      await t.commit();
+      // await t.commit();
       res.status(201).json(response);
     } catch (error) {
-      await t.rollback();
+      // await t.rollback();
       res.status(400).json({
         success: false,
         message: "Some error occurred!",

@@ -29,6 +29,7 @@ const publicPath = path.join(__dirname, "../public");
 
 import "./controller/controllers";
 
+
 const sIO = {} as SocketIOServer;
 const container = createContainer(sIO);
 const inversifyServer = new InversifyExpressServer(container);
@@ -103,9 +104,9 @@ const port = process.env.PORT || 3002;
 httpServer.listen(port, async() => {
   try {
     await sequelize.authenticate();
-    console.log("Connection has been established successfully.");
+    console.log("Database connection successful.");
   } catch (error) {
-    console.error("Unable to connect to the database:", error);
+    console.error("Error during server startup:", error);
   }
   console.log(`Server listening at http://localhost:${port}`);
 });
