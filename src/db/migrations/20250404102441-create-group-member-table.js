@@ -5,12 +5,20 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     try {
-      await queryInterface.createTable('chat_contacts', {
+      await queryInterface.createTable('group_members', {
         id: {
           type: Sequelize.INTEGER,
           allowNull: false,
           autoIncrement: true,
           primaryKey: true
+        },
+        groupId: {
+          type: Sequelize.INTEGER,
+          allowNull: false,
+          references: {
+            model: 'groups',
+            key: 'id',
+          },
         },
         userId: {
           type: Sequelize.INTEGER,
@@ -21,21 +29,7 @@ module.exports = {
           },
           unique: true
         },
-        currentUserId: {
-          type: Sequelize.INTEGER,
-          allowNull: false
-        },
-        isMuted: {
-          type: Sequelize.BOOLEAN,
-          allowNull: false,
-          defaultValue: false,
-        },
-        isArchived: {
-          type: Sequelize.BOOLEAN,
-          allowNull: false,
-          defaultValue: false,
-        },
-        isBlocked: {
+        isAdmin: {
           type: Sequelize.BOOLEAN,
           allowNull: false,
           defaultValue: false,
@@ -67,18 +61,19 @@ module.exports = {
           allowNull: true,
           defaultValue: false,
         }
-      })
-    } catch (error) {
-      console.log("Migration error", error)
-    }
-  },
-
-
- async down(queryInterface) {
-    try {
-      await queryInterface.dropTable('chat_contacts');
+      });
     } catch (error) {
       console.log("Migration error", error);
     }
+  },
+
+  async down(queryInterface) {
+    try {
+      await queryInterface.dropTable('group_members');
+    } catch (error) {
+      console.log("Migration error", error);
+    }
+
   }
 };
+

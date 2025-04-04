@@ -5,40 +5,76 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     try {
-      await queryInterface.createTable('chat_contacts', {
+      await queryInterface.createTable('file_uploads', {
         id: {
           type: Sequelize.INTEGER,
           allowNull: false,
           autoIncrement: true,
           primaryKey: true
         },
-        userId: {
+        messageId: {
           type: Sequelize.INTEGER,
           allowNull: false,
           references: {
-            model: 'users',
+            model: 'messages',
             key: 'id',
+          }
+        },
+        chatId: {
+          type: Sequelize.INTEGER,
+          allowNull: true,
+          references: {
+            model: 'messages',
+            key: 'chatContactId',
+          },
+          unique: true
+        },
+        groupChatId: {
+          type: Sequelize.INTEGER,
+          allowNull: true,
+          references: {
+            model: 'messages',
+            key: 'groupId',
+          },
+          unique: true
+        },
+        chatUserId: {
+          type: Sequelize.INTEGER,
+          allowNull: true,
+          references: {
+            model: 'messages',
+            key: 'chatContactUserId',
+          },
+          unique: true
+        },
+        groupChatUserId: {
+          type: Sequelize.INTEGER,
+          allowNull: true,
+          references: {
+            model: 'messages',
+            key: 'groupMemberUserId',
           },
           unique: true
         },
         currentUserId: {
           type: Sequelize.INTEGER,
-          allowNull: false
+          allowNull: true
         },
-        isMuted: {
-          type: Sequelize.BOOLEAN,
+        fileName: {
+          type: Sequelize.TEXT,
           allowNull: false,
-          defaultValue: false,
         },
-        isArchived: {
-          type: Sequelize.BOOLEAN,
+        fileType: {
+          type: Sequelize.STRING(400),
           allowNull: false,
-          defaultValue: false,
         },
-        isBlocked: {
-          type: Sequelize.BOOLEAN,
+        filePath: {
+          type: Sequelize.TEXT,
           allowNull: false,
-          defaultValue: false,
+        },
+        fileSize: {
+          type: Sequelize.DECIMAL(18, 2),
+          allowNull: false,
         },
         createdOn: {
           type: Sequelize.DataTypes.DATE(7),
@@ -69,16 +105,16 @@ module.exports = {
         }
       })
     } catch (error) {
-      console.log("Migration error", error)
+      console.log("Migration error", error);
     }
   },
 
-
- async down(queryInterface) {
+  async down(queryInterface) {
     try {
-      await queryInterface.dropTable('chat_contacts');
+      await queryInterface.dropTable('file_uploads');
     } catch (error) {
       console.log("Migration error", error);
     }
   }
 };
+

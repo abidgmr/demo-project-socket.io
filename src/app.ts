@@ -101,14 +101,19 @@ io.on("connection", (socket) => {
 });
 
 const port = process.env.PORT || 3002;
-httpServer.listen(port, async() => {
+
+httpServer.listen(port, async () => {
   try {
     await sequelize.authenticate();
     console.log("Database connection successful.");
+    console.log(`Server listening at http://localhost:${port}`);
   } catch (error) {
     console.error("Error during server startup:", error);
+    httpServer.close(() => {
+      console.log("Server shut down due to DB connection failure.");
+      process.exit(1);
+    });
   }
-  console.log(`Server listening at http://localhost:${port}`);
 });
 
 export default httpServer;

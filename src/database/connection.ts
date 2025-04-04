@@ -20,12 +20,18 @@ const db = () => {
 };
 
 const configuration = db();
+if(!configuration?.database || !configuration.username || !configuration.password || !configuration.config)
+  throw Error("Invalid database credentials.")
+
+
 const sequelize = new Sequelize(
   configuration?.database || "",
   configuration?.username || "",
   configuration?.password || "",
   configuration?.config
 );
+
+console.log(`Connecting to ${configuration?.database} database on port ${configuration?.config.port}...`);
 
 export default sequelize;
 

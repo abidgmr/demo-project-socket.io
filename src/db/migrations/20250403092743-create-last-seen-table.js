@@ -1,40 +1,51 @@
+/* eslint-disable no-undef */
 'use strict';
 
 /** @type {import('sequelize-cli').Migration} */
-
-  export async function up (queryInterface, Sequelize) {
-    await queryInterface.createTable('last_seen', 
-      { 
-        id: {
-          type: Sequelize.INTEGER,
-          allowNull: false,
-          autoIncrement: true
-        },
-        userId: {
-          type: Sequelize.INTEGER,
-          allowNull: false,
-          references: {
-            model: 'users',
-            key: 'id',
+module.exports = {
+   async up(queryInterface, Sequelize) {
+    try {
+      await queryInterface.createTable('last_seen_records', 
+        { 
+          id: {
+            type: Sequelize.INTEGER,
+            allowNull: false,
+            autoIncrement: true,
+            primaryKey: true
           },
-        },
-        status: {
-          type: Sequelize.STRING(50),
-          allowNull: false,
-        },
-        lastSeenOn: {
-          type: Sequelize.DataTypes.DATE(7),
-          allowNull: true,
-        },
-        updatedOn: {
-          type: Sequelize.DataTypes.DATE(7),
-          allowNull: true,
-        },
-      }
-    
-    );
-  };
+          userId: {
+            type: Sequelize.INTEGER,
+            allowNull: false,
+            references: {
+              model: 'users',
+              key: 'id',
+            },
+          },
+          status: {
+            type: Sequelize.STRING(50),
+            allowNull: false,
+          },
+          lastSeenOn: {
+            type: Sequelize.DataTypes.DATE(7),
+            allowNull: true,
+          },
+          updatedOn: {
+            type: Sequelize.DataTypes.DATE(7),
+            allowNull: true,
+          },
+        }
+      
+      );
+    } catch (error) {
+      console.log("Migration error", error)
+    }
+  },
 
-  export async function down (queryInterface) {
-    await queryInterface.dropTable('last_seen');
+  async down(queryInterface) {
+    try {
+      await queryInterface.dropTable('last_seen_records');
+    } catch (error) {
+      console.log("Migration error", error);
+    }
   }
+};

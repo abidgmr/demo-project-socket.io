@@ -1,30 +1,22 @@
 /* eslint-disable no-undef */
-import dotenv from "dotenv";
-import { Sequelize } from "sequelize";
-import { dbConnectionConfiguration } from "../database/configuration/index.ts";
-
+/* eslint-disable @typescript-eslint/no-require-imports */
+const dotenv = require("dotenv");
 dotenv.config();
-dotenv.config({ path: `.env.${process.env.NODE_ENV}` });
 
-
-const env = process.env.NODE_ENV?.trim() || "local";
-
-const db = () => {
-  if (env && env == "local") {
-    return dbConnectionConfiguration.local;
-  } else if (env && env == "development") {
-    return dbConnectionConfiguration.development;
-  } else if (env && env == "production") {
-    return dbConnectionConfiguration.production;
-  }
+module.exports = {
+  development: {
+    username: process.env.DB_USERNAME,
+    password: process.env.DB_PASSWORD,
+    database: process.env.DB_NAME,
+    host: process.env.DB_HOST,
+    port: Number(process.env.DB_PORT),
+    dialect: "mssql",
+    dialectOptions: {
+      options: {
+        encrypt: false,
+        trustServerCertificate: true,
+      },
+    },
+  },
 };
 
-const configuration = db();
-const sequelize = new Sequelize(
-  configuration?.database || "",
-  configuration?.username || "",
-  configuration?.password || "",
-  configuration?.config
-);
-
-export default sequelize;

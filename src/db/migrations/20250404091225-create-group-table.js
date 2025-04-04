@@ -5,54 +5,24 @@
 module.exports = {
   async up(queryInterface, Sequelize) {
     try {
-      await queryInterface.createTable('users', {
+      await queryInterface.createTable('groups', {
         id: {
           type: Sequelize.INTEGER,
           allowNull: false,
-          primaryKey: true,
-          autoIncrement: true
+          autoIncrement: true,
+          primaryKey: true
         },
-        guid: {
+        adminId: {
           type: Sequelize.UUID,
           allowNull: false,
-          defaultValue: Sequelize.UUIDV4,
-          unique: true
+          references: {
+            model: 'users',
+            key: 'guid',
+          },
         },
-        firstName: {
+        name: {
           type: Sequelize.STRING(50),
           allowNull: false,
-        },
-        lastName: {
-          type: Sequelize.STRING(50),
-          allowNull: false,
-        },
-        email: {
-          type: Sequelize.STRING(255),
-          allowNull: false,
-        },
-        password: {
-          type: Sequelize.STRING(255),
-          allowNull: false,
-        },
-        confirmPassword: {
-          type: Sequelize.STRING(255),
-          allowNull: false,
-        },
-        profilePicture: {
-          type: Sequelize.BLOB('long'),
-          allowNull: true
-        },
-        ip_address: {
-          type: Sequelize.STRING(250),
-          allowNull: true
-        },
-        login_on: {
-          type: Sequelize.DATE(7),
-          allowNull: true
-        },
-        lastLoginOn: {
-          type: Sequelize.DATE(7),
-          allowNull: true
         },
         createdOn: {
           type: Sequelize.DATE(7),
@@ -89,9 +59,10 @@ module.exports = {
 
   async down(queryInterface) {
     try {
-      await queryInterface.dropTable('users');
+      await queryInterface.dropTable('groups');
     } catch (error) {
       console.log("Migration error", error);
     }
   }
 };
+
