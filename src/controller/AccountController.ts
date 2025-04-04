@@ -13,8 +13,10 @@ import { TYPES } from "../config/types";
 import IAccountService from "../services/interface/IAccountService";
 import LoginModel from "../models/LoginDataModel";
 import UserDto from "../dtos/UserDto";
-// import sequelize from "../database/connection";
-import { UserModel } from "../database/models/UserModel";
+import sequelize from "../database/connection";
+import { UserDataModel } from "../models/UserDataModel";
+import BcryptUtils from "../utils/bcrypt.utils";
+import UserModel from "../database/models/UserModel";
 
 @controller("/account")
 export class AccountController implements interfaces.Controller {
@@ -65,18 +67,35 @@ export class AccountController implements interfaces.Controller {
     @request() req: Request,
     @response() res: Response
   ): Promise<UserDto | void> {
-    // const t = await sequelize.transaction();
+    const t = await sequelize.transaction();
     try {
-      const model = req.body as UserModel;
-      const roleName = req.body.role as string;
-      const confirmPassword = req.body.confirmPassword as string;
-      console.log(model, roleName, confirmPassword);
+      const model = req.body as UserDataModel;
+      const existingUser = await UserModel.findOne({ where: { email: model.email } });
 
+      if (existingUser) {
+        res.status(400).json({
+          success: false,
+          message: "Username already taken",
+        });
+        return;
+      }
 
-      // await t.commit();
+      if (model.password !== model.confirmPassword) {
+        res.status(400).json({
+          success: false,
+          message: "Invalid username or password",
+        });
+        return;
+      }
+
+      model.password = await BcryptUtils.hashPassword(model.password);
+      const { ...dbModel } = model;
+      const response = await UserModel.create(dbModel);
+
+      await t.commit();
       res.status(201).json(response);
     } catch (error) {
-      // await t.rollback();
+      await t.rollback();
       res.status(400).json({
         success: false,
         message: "Some error occurred!",

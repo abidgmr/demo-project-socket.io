@@ -16,7 +16,6 @@ tags:
   - name: User
     description: User-related APIs
 
-# Global Security Requirement
 security:
   - BearerAuth: []
   - ClientIdHeader: []
@@ -46,7 +45,7 @@ paths:
             schema:
               type: object
               properties:
-                email:
+                username:
                   type: string
                   example: "user@example.com"
                 password:
@@ -80,26 +79,66 @@ paths:
           application/json:
             schema:
               type: object
+              required:
+                - firstName
+                - lastName
+                - email
+                - password
+                - confirmPassword
+                - profilePicture
               properties:
+                firstName:
+                  type: string
+                  example: "John"
+                lastName:
+                  type: string
+                  example: "Doe"
                 email:
                   type: string
+                  format: email
+                  example: "user@example.com"
                 password:
                   type: string
+                  example: "password123"
                 confirmPassword:
                   type: string
-                name:
-                  type: string
-                role:
-                  type: string
+                  example: "password123"
+                profilePicture:
+                  type: file
+                  example: "password123"
       responses:
         '201':
           description: Registration successful
           content:
             application/json:
               schema:
-                $ref: '#/components/schemas/UserDto'
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: true
+                  message:
+                    type: string
+                    example: "Registration successful"
+                  data:
+                    $ref: '#/components/schemas/UserDto'
         '400':
-          description: Registration failed
+          description: Registration failed (email exists, password mismatch, or other error)
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    example: false
+                  message:
+                    type: string
+                    example: "Username already taken"
+                  error:
+                    type: object
+                    nullable: true
+                    example: null
 
   # Chat Controller
 
@@ -223,17 +262,21 @@ paths:
 
 components:
   schemas:
-    UserDto:
+    UserSchema:
       type: object
       properties:
-        id:
+        firstName:
           type: string
-        name:
+        lastName:
           type: string
         email:
           type: string
-        role:
+        password:
           type: string
+        confirmPassword:
+          type: string
+        profilePicture:
+          type: file
 
   securitySchemes:
     BearerAuth:

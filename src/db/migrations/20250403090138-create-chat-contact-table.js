@@ -8,9 +8,9 @@ module.exports = {
       await queryInterface.createTable('chat_contacts', {
         id: {
           type: Sequelize.INTEGER,
-          allowNull: false,
           autoIncrement: true,
-          primaryKey: true
+          primaryKey: true,
+          allowNull: false
         },
         userId: {
           type: Sequelize.INTEGER,

@@ -1,12 +1,12 @@
 export default interface UserDto {
-  uniqueId?: string;
-  userId?: number;
+  id: number;
+  guid: string;
   firstName: string;
   lastName: string;
   email: string;
-  phone: string;
+  profilePicture?: File;
   isActive: boolean;
-  createdOn?: Date;
+  isDeleted?: boolean;
   token?: string;
 }
 

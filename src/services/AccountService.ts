@@ -1,79 +1,75 @@
-import { inject, injectable } from "inversify";
+import { injectable } from "inversify";
 import IAccountService from "./interface/IAccountService";
-import UserDto from "../dtos/UserDto";
+import  UserDto  from "../dtos/UserDto";
 import LoginDataModel from "../models/LoginDataModel";
-import BcryptUtils from "../utils/bcrypt.utils";
-import { UserModel } from "../database/models/UserModel";
-// import sequelize from "../database/connection";
-import { RoleModel } from "../database/models/RoleModel";
+import  UserModel from "../database/models/UserModel";
+import sequelize from "../database/connection";
 import Response from "../dtos/Response";
-import IMiscellaneousService from "./interface/IMiscellaneousService";
-import { TYPES } from "../config/types";
+import LoginBasicDto, { LoginDto } from "../dtos/LoginDto";
+import BcryptUtils from "../utils/bcrypt.utils";
+import generateToken from "../jwt/jwt-token";
 
 @injectable()
 export default class AccountService implements IAccountService {
-  private readonly _miscellaneousService: IMiscellaneousService;
-
-  constructor(
-    @inject(TYPES.IMiscellaneousService)
-    miscellaneousService: IMiscellaneousService
-  ) {
-    this._miscellaneousService = miscellaneousService;
-  }
-
   async login(
     model: LoginDataModel
-  ): Promise<Response<UserDto | { uniqueId: string }>> {
-    // const t = await sequelize.transaction();
+  ): Promise<Response<LoginDto>> {
+    const t = await sequelize.transaction();
     try {
       if (!model.username && !model.password) {
         throw new Error("Login credentials required");
       }
 
-      const _user = await UserModel.findOne({
+      const result = await UserModel.findOne({
         where: {
           email: model.username,
           isActive: true,
           isDeleted: false,
         },
-        raw: true,
+        attributes: ["id", "guid", "email", "password", "isActive", "isDeleted"],
+        raw: false,
       });
 
-      if (!_user) {
+      const userResponse: LoginBasicDto = result?.dataValues;
+      if (!userResponse) {
         throw new Error("Invalid username or password");
       }
 
       const isPasswordValid = await BcryptUtils.comparePassword(
         model.password,
-        _user.password
+        userResponse.password
       );
 
       if (!isPasswordValid) {
         throw new Error("Invalid username or password");
       }
 
-      // await t.rollback();
-      const roleResponse = await RoleModel.findOne({
-        where: {
-          roleId: _user?.roleId,
-        },
-        raw: true,
-      });
+      const token = await generateToken(userResponse.email, userResponse.guid);
 
-      if (!roleResponse) {
-        throw new Error("Invalid role!");
+      if(!token){
+        throw new Error("Some error occurred");
       }
 
-      const tokenResponse = await this._miscellaneousService.generateToken(
-        _user,
-        roleResponse
-      );
+      const response = await {
+        token: token,
+        isLogin: true
+      };
 
-      if (tokenResponse && tokenResponse.data && tokenResponse.success) {
-        return tokenResponse;
+      if (response) {
+        return {
+          success: true,
+          data: response,
+        };
+      } else {
+        return {
+          success: false,
+          message: "Login failed",
+        };
       }
-    } catch {
-      // await t.rollback();
+
+    } catch(e) {
+      console.log(e);
+      await t.rollback();
       throw new Error("Some error occurred!");
     }
 
